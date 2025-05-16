@@ -14,8 +14,20 @@ import '../styles/global.css';
     <meta property="og:url" content="https://uksaver.uk" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href="/favicon.ico" />
+    <style>
+      .fade-in {
+        opacity: 0;
+        animation: fadeIn 1.5s ease forwards;
+        animation-delay: 0.5s;
+      }
+      @keyframes fadeIn {
+        to {
+          opacity: 1;
+        }
+      }
+    </style>
   </head>
-  <body class="bg-gradient-to-br from-indigo-800 via-purple-800 to-pink-800 min-h-screen flex items-center justify-center text-white px-4">
+  <body class="bg-gradient-to-br from-indigo-800 via-purple-800 to-pink-800 min-h-screen flex flex-col items-center justify-center text-white px-4 py-12">
     <div class="max-w-xl text-center space-y-6">
       <h1 class="text-5xl font-bold flex justify-center items-center gap-3">
         💷 <span>UKSaver</span>
@@ -29,7 +41,6 @@ import '../styles/global.css';
         method="POST"
         class="flex flex-col sm:flex-row justify-center mt-6"
       >
-        <input type="hidden" name="_next" value="https://uksaver.uk/thank-you" />
         <input
           type="email"
           name="email"
@@ -44,6 +55,14 @@ import '../styles/global.css';
           Notify me
         </button>
       </form>
+
+      <!-- About Section with fade-in -->
+      <section class="mt-12 text-left text-white/90 fade-in">
+        <h2 class="text-2xl font-semibold mb-3">What is UKSaver?</h2>
+        <p class="text-base leading-relaxed">
+          UKSaver is a smart tool that scans UK retailers and shows you the best deals on groceries, essentials, and more. Save time and money with the best discounts at your fingertips.
+        </p>
+      </section>
     </div>
   </body>
 </html>
