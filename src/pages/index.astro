@@ -23,8 +23,12 @@ import '../styles/global.css';
       <p class="text-xl">We’re working hard to help you find the best deals in the UK.</p>
       <p class="text-sm opacity-80">Launching soon. Stay tuned!</p>
 
-      <!-- ✅ Email подписка через Formspree -->
-      <form action="https://formspree.io/f/mrbqjkqa" method="POST" class="flex flex-col sm:flex-row justify-center mt-6">
+      <!-- ✅ Email subscription via Formspree with redirect -->
+      <form
+        action="https://formspree.io/f/mrbqjkqa?redirect=https://uksaver.uk/thank-you"
+        method="POST"
+        class="flex flex-col sm:flex-row justify-center mt-6"
+      >
         <input
           type="email"
           name="email"
