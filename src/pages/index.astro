@@ -25,10 +25,12 @@ import '../styles/global.css';
 
       <!-- ✅ Email subscription via Formspree with redirect -->
       <form
-        action="https://formspree.io/f/mrbqjkqa?redirect=https://uksaver.uk/thank-you"
+        action="https://formspree.io/f/mrbqjkqa"
         method="POST"
         class="flex flex-col sm:flex-row justify-center mt-6"
       >
+        <input type="hidden" name="_redirect" value="https://uksaver.uk/thank-you" />
+
         <input
           type="email"
           name="email"
