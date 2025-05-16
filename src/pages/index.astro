@@ -40,6 +40,7 @@ import '../styles/global.css';
         action="https://formspree.io/f/mrbqjkqa"
         method="POST"
         class="flex flex-col sm:flex-row justify-center mt-6"
+        novalidate
       >
         <input
           type="email"
@@ -47,6 +48,7 @@ import '../styles/global.css';
           placeholder="Enter your email"
           required
           class="rounded-l-md px-4 py-2 text-black focus:outline-none sm:w-2/3"
+          aria-label="Email address"
         />
         <button
           type="submit"
