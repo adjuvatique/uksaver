@@ -1,25 +1,38 @@
-import React, { useState } from 'react';
-import Header from '../components/Header';
+---
+import EventsList from '../components/EventsList.jsx';
+import Header from '../components/Header.jsx';
 
-export default function App() {
-  const [city, setCity] = useState('All');
-  const [freeFilter, setFreeFilter] = useState('All Events');
-  const [genreFilter, setGenreFilter] = useState('All');
-  const [ageFilter, setAgeFilter] = useState('All ages');
+const [city, setCity] = Astro.useState('All');
+const [freeFilter, setFreeFilter] = Astro.useState('All Events');
+const [genreFilter, setGenreFilter] = Astro.useState('All');
+const [ageFilter, setAgeFilter] = Astro.useState('All ages');
+---
 
-  return (
-    <div>
-      <Header
-        city={city}
-        setCity={setCity}
-        freeFilter={freeFilter}
-        setFreeFilter={setFreeFilter}
-        genreFilter={genreFilter}
-        setGenreFilter={setGenreFilter}
-        ageFilter={ageFilter}
-        setAgeFilter={setAgeFilter}
-      />
-      {/* Остальной код с событиями и т.д. */}
-    </div>
-  );
-}
+<html lang="en">
+  <head>
+    <title>UKSaver — Events Finder</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body class="bg-gradient-to-br from-indigo-800 via-purple-800 to-pink-800 min-h-screen flex flex-col items-center justify-start text-white px-4 py-12">
+    
+    <Header
+      city={city}
+      setCity={setCity}
+      freeFilter={freeFilter}
+      setFreeFilter={setFreeFilter}
+      genreFilter={genreFilter}
+      setGenreFilter={setGenreFilter}
+      ageFilter={ageFilter}
+      setAgeFilter={setAgeFilter}
+    />
+
+    <EventsList
+      city={city}
+      freeFilter={freeFilter}
+      genreFilter={genreFilter}
+      ageFilter={ageFilter}
+    />
+    
+  </body>
+</html>
