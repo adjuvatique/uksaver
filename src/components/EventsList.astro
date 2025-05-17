@@ -1,0 +1,176 @@
+import React, { useState, useEffect } from 'react';
+
+function shortDescription(text) {
+  if (!text) return '';
+  if (text.length <= 120) return text;
+  return text.slice(0, 117) + '...';
+}
+
+function formatAge(ageRestricted) {
+  return ageRestricted ? '18+' : 'All ages';
+}
+
+function isFreeEvent(event) {
+  if (!event.priceRanges) return true;
+  return event.priceRanges.some(p => p.min === 0);
+}
+
+function formatTime(timeStr) {
+  if (!timeStr) return '';
+  const parts = timeStr.split(':');
+  if (parts.length >= 2) return parts[0] + ':' + parts[1];
+  return timeStr;
+}
+
+export default function EventsList({ initialCity = 'London' }) {
+  const [city, setCity] = useState(initialCity);
+  const [filter, setFilter] = useState('all'); // all, free, paid
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [expandedIds, setExpandedIds] = useState(new Set());
+
+  useEffect(() => {
+    loadEvents();
+  }, [city, filter]);
+
+  async function loadEvents() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`http://localhost:3000/events?city=${encodeURIComponent(city)}`);
+      if (!res.ok) throw new Error('Failed to fetch events');
+      let data = await res.json();
+      let filtered = data.events || [];
+
+      if (filter === 'free') filtered = filtered.filter(isFreeEvent);
+      else if (filter === 'paid') filtered = filtered.filter(e => !isFreeEvent(e));
+
+      setEvents(filtered);
+    } catch (e) {
+      setError(e.message);
+      setEvents([]);
+    }
+    setLoading(false);
+  }
+
+  function toggleDescription(id) {
+    const newSet = new Set(expandedIds);
+    if (newSet.has(id)) newSet.delete(id);
+    else newSet.add(id);
+    setExpandedIds(newSet);
+  }
+
+  const cities = [
+    'London', 'Manchester', 'Birmingham', 'Leeds', 'Glasgow', 'Edinburgh',
+    'Liverpool', 'Bristol', 'Cardiff', 'Newcastle', 'Sheffield',
+    'Nottingham', 'Belfast', 'Derry', 'Dublin', 'Cork', 'Galway', 'Limerick'
+  ];
+
+  return (
+    <div className="max-w-4xl mx-auto text-white p-4">
+      <div className="flex flex-wrap gap-4 mb-6 justify-center">
+        <select
+          aria-label="Select city"
+          value={city}
+          onChange={e => setCity(e.target.value)}
+          className="p-2 rounded bg-purple-700 text-white"
+        >
+          {cities.map(c => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
+
+        <select
+          aria-label="Filter events"
+          value={filter}
+          onChange={e => setFilter(e.target.value)}
+          className="p-2 rounded bg-purple-700 text-white"
+        >
+          <option value="all">All Events</option>
+          <option value="free">Free Events</option>
+          <option value="paid">Paid Events</option>
+        </select>
+      </div>
+
+      {loading && <p className="text-center text-purple-300">Loading events...</p>}
+      {error && <p className="text-center text-red-500">Error: {error}</p>}
+
+      {!loading && events.length === 0 && (
+        <p className="text-center text-purple-300">No events found for selected filters.</p>
+      )}
+
+      <ul className="divide-y divide-purple-700 rounded-lg overflow-hidden shadow-lg bg-purple-900">
+        {events.map(event => {
+          const imageUrl = event.images?.find(img => img.ratio === '16_9')?.url || '';
+          const venue = event._embedded?.venues?.[0]?.name || 'Unknown venue';
+          const date = event.dates?.start?.localDate || 'Unknown date';
+          const time = formatTime(event.dates?.start?.localTime || '');
+          const ticketUrl = event.url || '';
+          const fullDescription = event.info || event.pleaseNote || '';
+          const genre = event.classifications?.[0]?.genre?.name || 'N/A';
+          const ageRestricted = formatAge(event.ageRestrictions?.legalAgeEnforced);
+          const status = event.dates?.status?.code || 'unknown';
+          const freeText = isFreeEvent(event) ? 'Free' : 'Paid';
+
+          const isExpanded = expandedIds.has(event.id);
+
+          return (
+            <li
+              key={event.id}
+              className="flex flex-col gap-2 px-6 py-4 hover:bg-purple-700 transition rounded"
+            >
+              <div className="flex items-center gap-4">
+                {imageUrl ? (
+                  <img
+                    src={imageUrl}
+                    alt={event.name}
+                    className="w-24 h-14 object-cover rounded-md flex-shrink-0"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="w-24 h-14 bg-purple-700 rounded-md flex-shrink-0 flex items-center justify-center text-sm text-purple-300">
+                    No Image
+                  </div>
+                )}
+                <div className="flex-1">
+                  <h3 className="text-white text-xl font-semibold">{event.name}</h3>
+                  <p className="text-purple-300 text-sm">
+                    {date} {time && `at ${time}`} | {venue}
+                  </p>
+
+                  <p
+                    className="description text-purple-400 text-xs mt-1 cursor-pointer select-none"
+                    onClick={() => toggleDescription(event.id)}
+                    aria-expanded={isExpanded}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' || e.key === ' ') toggleDescription(event.id);
+                    }}
+                  >
+                    {isExpanded ? fullDescription || 'No description' : shortDescription(fullDescription) || 'No description'}
+                  </p>
+
+                  <p className="mt-1 text-sm text-purple-300">
+                    Genre: {genre} | Age: {ageRestricted} | Status: {status} | <span className="font-semibold">{freeText}</span>
+                  </p>
+                </div>
+                {ticketUrl && (
+                  <a
+                    href={ticketUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-4 px-3 py-1 bg-pink-600 hover:bg-pink-700 rounded text-white font-semibold text-sm whitespace-nowrap"
+                  >
+                    Buy Tickets
+                  </a>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}

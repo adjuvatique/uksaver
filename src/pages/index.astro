@@ -1,70 +1,12 @@
 ---
-import '../styles/global.css';
+import EventsList from '../components/EventsList.jsx';
 ---
 
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>UKSaver — Coming Soon</title>
-    <meta name="description" content="Stay updated with UKSaver and discover the best product discounts in the UK." />
-    <meta property="og:title" content="UKSaver — Best Deals in the UK" />
-    <meta property="og:description" content="Sign up now to be the first to know about new UKSaver launches and promos!" />
-    <meta property="og:image" content="/preview.png" />
-    <meta property="og:url" content="https://uksaver.uk" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <link rel="icon" href="/favicon.ico" />
-    <style>
-      .fade-in {
-        opacity: 0;
-        animation: fadeIn 1.5s ease forwards;
-        animation-delay: 0.5s;
-      }
-      @keyframes fadeIn {
-        to {
-          opacity: 1;
-        }
-      }
-    </style>
+    <title>UKSaver — Events Finder</title>
   </head>
-  <body class="bg-gradient-to-br from-indigo-800 via-purple-800 to-pink-800 min-h-screen flex flex-col items-center justify-center text-white px-4 py-12">
-    <div class="max-w-xl text-center space-y-6">
-      <h1 class="text-5xl font-bold flex justify-center items-center gap-3">
-        💷 <span>UKSaver</span>
-      </h1>
-      <p class="text-xl">We’re working hard to help you find the best deals in the UK.</p>
-      <p class="text-sm opacity-80">Launching soon. Stay tuned!</p>
-
-      <!-- Email subscription form -->
-      <form
-        action="https://formspree.io/f/mrbqjkqa"
-        method="POST"
-        class="flex flex-col sm:flex-row justify-center mt-6"
-        novalidate
-      >
-        <input
-          type="email"
-          name="email"
-          placeholder="Enter your email"
-          required
-          class="rounded-l-md px-4 py-2 text-black focus:outline-none sm:w-2/3"
-          aria-label="Email address"
-        />
-        <button
-          type="submit"
-          class="bg-white text-purple-700 font-semibold px-4 py-2 rounded-r-md mt-2 sm:mt-0 sm:ml-0"
-        >
-          Notify me
-        </button>
-      </form>
-
-      <!-- About Section with fade-in -->
-      <section class="mt-12 text-left text-white/90 fade-in">
-        <h2 class="text-2xl font-semibold mb-3">What is UKSaver?</h2>
-        <p class="text-base leading-relaxed">
-          UKSaver is a smart tool that scans UK retailers and shows you the best deals on groceries, essentials, and more. Save time and money with the best discounts at your fingertips.
-        </p>
-      </section>
-    </div>
+  <body>
+    <EventsList client:load />
   </body>
 </html>

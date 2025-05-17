@@ -9,8 +9,13 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/react": "^4.2.7",
     "@astrojs/tailwind": "^6.0.2",
-    "astro": "^5.7.13"
+    "astro": "^5.7.13",
+    "framer-motion": "^12.12.1",
+    "node-fetch": "^3.3.2",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   },
   "devDependencies": {
     "tailwindcss": "^3.3.5"
