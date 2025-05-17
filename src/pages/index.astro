@@ -1,12 +1,25 @@
----
-import EventsList from '../components/EventsList.jsx';
----
+import React, { useState } from 'react';
+import Header from '../components/Header';
 
-<html lang="en">
-  <head>
-    <title>UKSaver — Events Finder</title>
-  </head>
-  <body>
-    <EventsList client:load />
-  </body>
-</html>
+export default function App() {
+  const [city, setCity] = useState('All');
+  const [freeFilter, setFreeFilter] = useState('All Events');
+  const [genreFilter, setGenreFilter] = useState('All');
+  const [ageFilter, setAgeFilter] = useState('All ages');
+
+  return (
+    <div>
+      <Header
+        city={city}
+        setCity={setCity}
+        freeFilter={freeFilter}
+        setFreeFilter={setFreeFilter}
+        genreFilter={genreFilter}
+        setGenreFilter={setGenreFilter}
+        ageFilter={ageFilter}
+        setAgeFilter={setAgeFilter}
+      />
+      {/* Остальной код с событиями и т.д. */}
+    </div>
+  );
+}
