@@ -1,19 +1,9 @@
 ---
 import EventsList from '../components/EventsList.jsx';
-import Header from '../components/Header.jsx';
 ---
 
 <html lang="en">
-  <head>
-    <title>UKSaver — Events Finder</title>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-  </head>
-  <body class="bg-gradient-to-br from-indigo-800 via-purple-800 to-pink-800 min-h-screen flex flex-col items-center justify-start text-white px-4 py-12">
-
-    <!-- Гидрация на клиенте -->
-    <Header client:load />
+  <body class="m-0 p-0 min-h-screen bg-gradient-to-br from-indigo-800 via-purple-800 to-pink-800">
     <EventsList client:load />
-
   </body>
 </html>

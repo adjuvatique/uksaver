@@ -1,52 +1,9 @@
 import React from 'react';
 
-export default function Header({
-  city,
-  setCity,
-  freeFilter,
-  setFreeFilter,
-  genreFilter,
-  setGenreFilter,
-  ageFilter,
-  setAgeFilter,
-}) {
-  // Расширенный список городов UK + Ирландия + All
-  const CITIES = [
-    'All',
-    'London',
-    'Manchester',
-    'Birmingham',
-    'Glasgow',
-    'Leeds',
-    'Belfast',
-    'Dublin',
-    'Edinburgh',
-    'Cardiff',
-    'Newcastle',
-    'Sheffield',
-    'Liverpool',
-    'Bristol',
-    'Coventry',
-    'Nottingham',
-    'Stoke-on-Trent',
-    'Derby',
-    'Sunderland',
-    'Wolverhampton',
-    'Plymouth',
-    'Southampton',
-    'Reading',
-    'Luton',
-    'Milton Keynes',
-    'Brighton',
-    'Portsmouth',
-    'Bournemouth',
-  ];
-
+export default function Header({ city, setCity, freeFilter, setFreeFilter, genreFilter, setGenreFilter, ageFilter, setAgeFilter }) {
+  const CITIES = ['All', 'London', 'Manchester', 'Birmingham', 'Glasgow', 'Leeds', 'Belfast', 'Dublin', 'Edinburgh', 'Cardiff'];
   const FREE_FILTERS = ['All Events', 'Free Only', 'Paid Only'];
-
   const GENRES = ['All', 'Music', 'Sports', 'Arts & Theatre', 'Film', 'Miscellaneous'];
-
-  // Обновленный фильтр по возрасту
   const AGES = ['All ages', '18+'];
 
   return (
@@ -60,9 +17,9 @@ export default function Header({
         <select
           className="bg-purple-700 text-white rounded px-4 py-2 min-w-[140px]"
           value={city}
-          onChange={(e) => setCity(e.target.value)}
+          onChange={e => setCity(e.target.value)}
         >
-          {CITIES.map((c) => (
+          {CITIES.map(c => (
             <option key={c} value={c}>
               {c}
             </option>
@@ -72,9 +29,9 @@ export default function Header({
         <select
           className="bg-purple-700 text-white rounded px-4 py-2 min-w-[140px]"
           value={freeFilter}
-          onChange={(e) => setFreeFilter(e.target.value)}
+          onChange={e => setFreeFilter(e.target.value)}
         >
-          {FREE_FILTERS.map((f) => (
+          {FREE_FILTERS.map(f => (
             <option key={f} value={f}>
               {f}
             </option>
@@ -84,9 +41,9 @@ export default function Header({
         <select
           className="bg-purple-700 text-white rounded px-4 py-2 min-w-[140px]"
           value={genreFilter}
-          onChange={(e) => setGenreFilter(e.target.value)}
+          onChange={e => setGenreFilter(e.target.value)}
         >
-          {GENRES.map((g) => (
+          {GENRES.map(g => (
             <option key={g} value={g}>
               {g}
             </option>
@@ -96,9 +53,9 @@ export default function Header({
         <select
           className="bg-purple-700 text-white rounded px-4 py-2 min-w-[140px]"
           value={ageFilter}
-          onChange={(e) => setAgeFilter(e.target.value)}
+          onChange={e => setAgeFilter(e.target.value)}
         >
-          {AGES.map((a) => (
+          {AGES.map(a => (
             <option key={a} value={a}>
               {a}
             </option>
