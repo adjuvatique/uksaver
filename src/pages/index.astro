@@ -1,11 +1,6 @@
 ---
 import EventsList from '../components/EventsList.jsx';
 import Header from '../components/Header.jsx';
-
-const [city, setCity] = Astro.useState('All');
-const [freeFilter, setFreeFilter] = Astro.useState('All Events');
-const [genreFilter, setGenreFilter] = Astro.useState('All');
-const [ageFilter, setAgeFilter] = Astro.useState('All ages');
 ---
 
 <html lang="en">
@@ -15,24 +10,10 @@ const [ageFilter, setAgeFilter] = Astro.useState('All ages');
     <meta name="viewport" content="width=device-width, initial-scale=1" />
   </head>
   <body class="bg-gradient-to-br from-indigo-800 via-purple-800 to-pink-800 min-h-screen flex flex-col items-center justify-start text-white px-4 py-12">
-    
-    <Header
-      city={city}
-      setCity={setCity}
-      freeFilter={freeFilter}
-      setFreeFilter={setFreeFilter}
-      genreFilter={genreFilter}
-      setGenreFilter={setGenreFilter}
-      ageFilter={ageFilter}
-      setAgeFilter={setAgeFilter}
-    />
 
-    <EventsList
-      city={city}
-      freeFilter={freeFilter}
-      genreFilter={genreFilter}
-      ageFilter={ageFilter}
-    />
-    
+    <!-- Гидрация на клиенте -->
+    <Header client:load />
+    <EventsList client:load />
+
   </body>
 </html>
