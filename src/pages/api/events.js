@@ -8,7 +8,7 @@ export async function GET(request) {
   const size = url.searchParams.get('size') || 8;
   const city = url.searchParams.get('city') || '';
 
-  // Добавляем countryCode=GB чтобы фильтровать по Великобритании
+  // Добавляем фильтр по стране
   let apiUrl = `https://app.ticketmaster.com/discovery/v2/events.json?apikey=${API_KEY}&page=${page}&size=${size}&countryCode=GB`;
 
   if (city && city !== 'All') {
@@ -25,7 +25,8 @@ export async function GET(request) {
     return new Response(JSON.stringify(data), {
       status: 200,
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store'  // Отключаем кеширование
       }
     });
   } catch (err) {

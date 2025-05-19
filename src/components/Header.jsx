@@ -1,11 +1,6 @@
 import React from 'react';
 
-export default function Header({
-  city, setCity,
-  freeFilter, setFreeFilter,
-  genreFilter, setGenreFilter,
-  ageFilter, setAgeFilter
-}) {
+export default function Header({ city, setCity, freeFilter, setFreeFilter, genreFilter, setGenreFilter, ageFilter, setAgeFilter }) {
   const CITIES = ['All', 'London', 'Manchester', 'Birmingham', 'Glasgow', 'Leeds', 'Belfast', 'Dublin', 'Edinburgh', 'Cardiff'];
   const FREE_FILTERS = ['All Events', 'Free Only', 'Paid Only'];
   const GENRES = ['All', 'Music', 'Sports', 'Arts & Theatre', 'Film', 'Miscellaneous'];
@@ -25,7 +20,9 @@ export default function Header({
           onChange={e => setCity(e.target.value)}
         >
           {CITIES.map(c => (
-            <option key={c} value={c}>{c}</option>
+            <option key={c} value={c}>
+              {c}
+            </option>
           ))}
         </select>
 
@@ -35,7 +32,9 @@ export default function Header({
           onChange={e => setFreeFilter(e.target.value)}
         >
           {FREE_FILTERS.map(f => (
-            <option key={f} value={f}>{f}</option>
+            <option key={f} value={f}>
+              {f}
+            </option>
           ))}
         </select>
 
@@ -45,7 +44,9 @@ export default function Header({
           onChange={e => setGenreFilter(e.target.value)}
         >
           {GENRES.map(g => (
-            <option key={g} value={g}>{g}</option>
+            <option key={g} value={g}>
+              {g}
+            </option>
           ))}
         </select>
 
@@ -55,7 +56,9 @@ export default function Header({
           onChange={e => setAgeFilter(e.target.value)}
         >
           {AGES.map(a => (
-            <option key={a} value={a}>{a}</option>
+            <option key={a} value={a}>
+              {a}
+            </option>
           ))}
         </select>
       </div>

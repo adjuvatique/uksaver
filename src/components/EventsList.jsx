@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import Header from './Header';
 
 export default function EventsList() {
-  // Состояния фильтров
   const [city, setCity] = useState('All');
   const [freeFilter, setFreeFilter] = useState('All Events');
   const [genreFilter, setGenreFilter] = useState('All');
@@ -15,50 +14,44 @@ export default function EventsList() {
 
   const PAGE_SIZE = 8;
 
-  // Сброс при смене фильтров
   useEffect(() => {
     setEvents([]);
     setPage(0);
     setHasMore(true);
   }, [city, freeFilter, genreFilter, ageFilter]);
 
-  // Загрузка событий
   useEffect(() => {
     async function fetchEvents() {
       if (!hasMore && page !== 0) return;
-
       setLoading(true);
 
       let url = `/api/events?page=${page}&size=${PAGE_SIZE}`;
       if (city !== 'All') url += `&city=${encodeURIComponent(city)}`;
 
       try {
-        const res = await fetch(url);
+        const res = await fetch(url, {
+          headers: { 'Cache-Control': 'no-cache' } // отключаем кэш на клиенте
+        });
         if (!res.ok) throw new Error('Failed to fetch events');
         const data = await res.json();
 
         let filtered = data._embedded?.events || [];
 
-        // Клиентская фильтрация по городу
-        if (city !== 'All') {
-          filtered = filtered.filter(e => {
-            const eventCity = e._embedded?.venues?.[0]?.city?.name || '';
-            return eventCity.toLowerCase() === city.toLowerCase();
-          });
-        }
-
+        // Фильтрация по бесплатным/платным
         if (freeFilter === 'Free Only') {
           filtered = filtered.filter(e => e.priceRanges?.some(p => p.min === 0));
         } else if (freeFilter === 'Paid Only') {
           filtered = filtered.filter(e => !e.priceRanges?.some(p => p.min === 0));
         }
 
+        // По жанру
         if (genreFilter !== 'All') {
           filtered = filtered.filter(e =>
             e.classifications?.some(c => c.segment?.name === genreFilter)
           );
         }
 
+        // По возрасту
         if (ageFilter === '18+') {
           filtered = filtered.filter(e => e.ageRestrictions?.legalAgeEnforced);
         }
@@ -72,7 +65,6 @@ export default function EventsList() {
         setLoading(false);
       }
     }
-
     fetchEvents();
   }, [city, freeFilter, genreFilter, ageFilter, page]);
 
