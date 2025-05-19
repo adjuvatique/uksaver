@@ -8,7 +8,8 @@ export async function GET(request) {
   const size = url.searchParams.get('size') || 8;
   const city = url.searchParams.get('city') || '';
 
-  let apiUrl = `https://app.ticketmaster.com/discovery/v2/events.json?apikey=${API_KEY}&page=${page}&size=${size}`;
+  // Добавляем countryCode=GB чтобы фильтровать по Великобритании
+  let apiUrl = `https://app.ticketmaster.com/discovery/v2/events.json?apikey=${API_KEY}&page=${page}&size=${size}&countryCode=GB`;
 
   if (city && city !== 'All') {
     apiUrl += `&city=${encodeURIComponent(city)}`;
