@@ -12,9 +12,8 @@ export default function EventsList() {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
 
-  const PAGE_SIZE = 8;
+  const PAGE_SIZE = city === 'All' ? 50 : 20;
 
-  // Сброс при смене фильтров
   useEffect(() => {
     setEvents([]);
     setPage(0);
@@ -26,24 +25,14 @@ export default function EventsList() {
       if (!hasMore && page !== 0) return;
 
       setLoading(true);
-
-      let url = `/api/events?page=${page}&size=${PAGE_SIZE}`;
-      if (city !== 'All') url += `&city=${encodeURIComponent(city)}`;
+      let url = `/api/events?page=${page}&city=${encodeURIComponent(city)}`;
 
       try {
         const res = await fetch(url);
         if (!res.ok) throw new Error('Failed to fetch events');
         const data = await res.json();
 
-        // Берём события из ответа
-        let filtered = data._embedded?.events || [];
-
-        // КЛИЕНТСКАЯ ФИЛЬТРАЦИЯ по городу (строгое сравнение)
-        if (city !== 'All') {
-          filtered = filtered.filter(event =>
-            event._embedded?.venues?.[0]?.city?.name?.toLowerCase() === city.toLowerCase()
-          );
-        }
+        let filtered = data.events || [];
 
         // Фильтрация по бесплатным/платным
         if (freeFilter === 'Free Only') {
@@ -52,7 +41,7 @@ export default function EventsList() {
           filtered = filtered.filter(e => !e.priceRanges?.some(p => p.min === 0));
         }
 
-        // Фильтрация по жанру
+        // Фильтрация по жанрам
         if (genreFilter !== 'All') {
           filtered = filtered.filter(e =>
             e.classifications?.some(c => c.segment?.name === genreFilter)
@@ -92,7 +81,10 @@ export default function EventsList() {
         )}
 
         {events.map(event => (
-          <li key={event.id} className="bg-purple-800 rounded p-4 flex gap-4 shadow hover:shadow-lg transition-shadow duration-300">
+          <li
+            key={event.id}
+            className="bg-purple-800 rounded p-4 flex gap-4 shadow hover:shadow-lg transition-shadow duration-300"
+          >
             {event.images?.[0]?.url && (
               <img
                 src={event.images[0].url}

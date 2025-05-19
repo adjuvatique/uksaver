@@ -1,20 +1,19 @@
 import fetch from 'node-fetch';
 
-const API_KEY = 'biPmMH1YGaNtNMOSYhfxt480OahSRcCr'; // Ваш ключ Ticketmaster
+const API_KEY = 'biPmMH1YGaNtNMOSYhfxt480OahSRcCr';
 
 export async function GET(request) {
   const url = new URL(request.url);
-  const page = url.searchParams.get('page') || 0;
-  const size = url.searchParams.get('size') || 8;
-  const city = url.searchParams.get('city') || '';
+  const page = url.searchParams.get('page') || '0';
+  const city = url.searchParams.get('city') || 'All';
+  const size = city === 'All' ? '50' : '20'; // Больше для всех городов, меньше для конкретного
 
-  let apiUrl = `https://app.ticketmaster.com/discovery/v2/events.json?apikey=${API_KEY}&page=${page}&size=${size}&countryCode=GB`;
+  // Формируем базовый URL
+  let apiUrl = `https://app.ticketmaster.com/discovery/v2/events.json?apikey=${API_KEY}&page=${page}&size=${size}&countryCode=GB&sort=date,asc`;
 
-  if (city && city !== 'All') {
+  if (city !== 'All') {
     apiUrl += `&city=${encodeURIComponent(city)}`;
   }
-
-  console.log('Fetching Ticketmaster:', apiUrl); // Лог для отладки
 
   try {
     const res = await fetch(apiUrl);
@@ -23,15 +22,17 @@ export async function GET(request) {
     }
     const data = await res.json();
 
-    return new Response(JSON.stringify(data), {
+    // Важно: если данных нет, возвращаем пустой список, чтобы не сломать клиент
+    const events = data._embedded?.events || [];
+
+    return new Response(JSON.stringify({ events }), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'no-store'  // Отключаем кеширование для свежих данных
-      }
+        'Cache-Control': 'no-store',
+      },
     });
   } catch (err) {
-    console.error('API fetch error:', err);
     return new Response('Internal Server Error', { status: 500 });
   }
 }
