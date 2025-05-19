@@ -14,7 +14,7 @@ export default function EventsList() {
 
   const PAGE_SIZE = 8;
 
-  // Сбросить данные и пагинацию при смене фильтров или города
+  // При изменении фильтров сбрасываем события и пагинацию
   useEffect(() => {
     setEvents([]);
     setPage(0);
@@ -27,39 +27,37 @@ export default function EventsList() {
 
       setLoading(true);
 
-      // Запрос к серверу (backend endpoint)
       let url = `/api/events?page=${page}&size=${PAGE_SIZE}`;
       if (city !== 'All') url += `&city=${encodeURIComponent(city)}`;
 
       try {
-        const res = await fetch(url);
+        const res = await fetch(url, { cache: 'no-store' });
         if (!res.ok) throw new Error('Failed to fetch events');
         const data = await res.json();
 
-        // Получаем массив событий из ответа API (path зависит от структуры Ticketmaster)
-        let fetchedEvents = data._embedded?.events || [];
+        let filtered = data._embedded?.events || [];
 
-        // Фильтрация по бесплатным/платным событиям
+        // Фильтрация по бесплатным / платным
         if (freeFilter === 'Free Only') {
-          fetchedEvents = fetchedEvents.filter(e => e.priceRanges?.some(p => p.min === 0));
+          filtered = filtered.filter(e => e.priceRanges?.some(p => p.min === 0));
         } else if (freeFilter === 'Paid Only') {
-          fetchedEvents = fetchedEvents.filter(e => !e.priceRanges?.some(p => p.min === 0));
+          filtered = filtered.filter(e => !e.priceRanges?.some(p => p.min === 0));
         }
 
         // Фильтрация по жанру
         if (genreFilter !== 'All') {
-          fetchedEvents = fetchedEvents.filter(e =>
+          filtered = filtered.filter(e =>
             e.classifications?.some(c => c.segment?.name === genreFilter)
           );
         }
 
         // Фильтрация по возрасту
         if (ageFilter === '18+') {
-          fetchedEvents = fetchedEvents.filter(e => e.ageRestrictions?.legalAgeEnforced);
+          filtered = filtered.filter(e => e.ageRestrictions?.legalAgeEnforced);
         }
 
-        setEvents(prev => (page === 0 ? fetchedEvents : [...prev, ...fetchedEvents]));
-        setHasMore(fetchedEvents.length === PAGE_SIZE);
+        setEvents(prev => (page === 0 ? filtered : [...prev, ...filtered]));
+        setHasMore(filtered.length === PAGE_SIZE);
       } catch (err) {
         console.error(err);
         setHasMore(false);
@@ -119,7 +117,9 @@ export default function EventsList() {
         ))}
       </ul>
 
-      {loading && <p className="text-center mt-4">Loading...</p>}
+      {loading && (
+        <p className="text-center mt-4">Loading...</p>
+      )}
 
       {hasMore && !loading && (
         <div className="text-center mt-6">
