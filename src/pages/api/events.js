@@ -8,7 +8,7 @@ export async function GET(request) {
   const size = url.searchParams.get('size') || 8;
   const city = url.searchParams.get('city') || '';
 
-  // Добавляем фильтр по стране
+  // Фильтр по стране + пагинация
   let apiUrl = `https://app.ticketmaster.com/discovery/v2/events.json?apikey=${API_KEY}&page=${page}&size=${size}&countryCode=GB`;
 
   if (city && city !== 'All') {
@@ -22,11 +22,14 @@ export async function GET(request) {
     }
     const data = await res.json();
 
-    return new Response(JSON.stringify(data), {
+    // Забираем события из data._embedded.events
+    const events = data._embedded?.events || [];
+
+    return new Response(JSON.stringify({ events }), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'no-store'  // Отключаем кеширование
+        'Cache-Control': 'no-store',  // отключаем кеширование
       }
     });
   } catch (err) {
