@@ -14,44 +14,44 @@ export default function EventsList() {
 
   const PAGE_SIZE = 8;
 
+  // Сбрасываем при смене фильтров
   useEffect(() => {
     setEvents([]);
     setPage(0);
     setHasMore(true);
   }, [city, freeFilter, genreFilter, ageFilter]);
 
+  // Загрузка событий с сервера
   useEffect(() => {
     async function fetchEvents() {
       if (!hasMore && page !== 0) return;
+
       setLoading(true);
 
       let url = `/api/events?page=${page}&size=${PAGE_SIZE}`;
       if (city !== 'All') url += `&city=${encodeURIComponent(city)}`;
 
       try {
-        const res = await fetch(url, {
-          headers: { 'Cache-Control': 'no-cache' } // отключаем кэш на клиенте
-        });
+        const res = await fetch(url);
         if (!res.ok) throw new Error('Failed to fetch events');
         const data = await res.json();
 
-        let filtered = data._embedded?.events || [];
+        const fetchedEvents = data._embedded?.events || [];
 
-        // Фильтрация по бесплатным/платным
+        let filtered = fetchedEvents;
+
         if (freeFilter === 'Free Only') {
           filtered = filtered.filter(e => e.priceRanges?.some(p => p.min === 0));
         } else if (freeFilter === 'Paid Only') {
           filtered = filtered.filter(e => !e.priceRanges?.some(p => p.min === 0));
         }
 
-        // По жанру
         if (genreFilter !== 'All') {
           filtered = filtered.filter(e =>
             e.classifications?.some(c => c.segment?.name === genreFilter)
           );
         }
 
-        // По возрасту
         if (ageFilter === '18+') {
           filtered = filtered.filter(e => e.ageRestrictions?.legalAgeEnforced);
         }
@@ -65,6 +65,7 @@ export default function EventsList() {
         setLoading(false);
       }
     }
+
     fetchEvents();
   }, [city, freeFilter, genreFilter, ageFilter, page]);
 
