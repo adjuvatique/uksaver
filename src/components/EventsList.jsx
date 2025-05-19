@@ -29,8 +29,8 @@ export default function EventsList() {
 
       setLoading(true);
 
-      let url = `/api/events?page=${page}&size=${PAGE_SIZE}`;
-      if (city !== 'All') url += `&city=${encodeURIComponent(city)}`;
+let url = `/api/events?page=${page}&size=${PAGE_SIZE}`;
+if (city !== 'All') url += `&city=${encodeURIComponent(city)}`;
 
       try {
         const res = await fetch(url);
