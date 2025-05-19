@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from './Header';
 
 export default function EventsList() {
+  // Состояния фильтров
   const [city, setCity] = useState('All');
   const [freeFilter, setFreeFilter] = useState('All Events');
   const [genreFilter, setGenreFilter] = useState('All');
@@ -14,12 +15,14 @@ export default function EventsList() {
 
   const PAGE_SIZE = 8;
 
+  // Сброс при смене фильтров
   useEffect(() => {
     setEvents([]);
     setPage(0);
     setHasMore(true);
   }, [city, freeFilter, genreFilter, ageFilter]);
 
+  // Загрузка событий
   useEffect(() => {
     async function fetchEvents() {
       if (!hasMore && page !== 0) return;
@@ -34,11 +37,15 @@ export default function EventsList() {
         if (!res.ok) throw new Error('Failed to fetch events');
         const data = await res.json();
 
-        console.log('Fetched data:', data);
-
         let filtered = data._embedded?.events || [];
 
-        console.log('Events count:', filtered.length);
+        // Клиентская фильтрация по городу
+        if (city !== 'All') {
+          filtered = filtered.filter(e => {
+            const eventCity = e._embedded?.venues?.[0]?.city?.name || '';
+            return eventCity.toLowerCase() === city.toLowerCase();
+          });
+        }
 
         if (freeFilter === 'Free Only') {
           filtered = filtered.filter(e => e.priceRanges?.some(p => p.min === 0));
