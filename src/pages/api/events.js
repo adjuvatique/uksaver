@@ -1,35 +1,58 @@
 import fetch from 'node-fetch';
 
+const API_KEY = 'ТВОЙ_TICKETMASTER_API_KEY_ЗДЕСЬ'; // Вставь сюда свой ключ
+
 export async function GET({ url }) {
-  const page = url.searchParams.get('page') || 0;
-  const size = url.searchParams.get('size') || 8;
   const city = url.searchParams.get('city') || '';
+  const page = parseInt(url.searchParams.get('page')) || 0;
+  const size = parseInt(url.searchParams.get('size')) || 50;
 
-  const API_KEY = 'biPmMH1YGaNtNMOSYhfxt480OahSRcCr'; // твой ключ
-
-  // Формируем URL запроса к Ticketmaster
-  let tmUrl = `https://app.ticketmaster.com/discovery/v2/events.json?apikey=${API_KEY}&countryCode=GB&page=${page}&size=${size}&sort=date,asc`;
-
-  if (city && city !== 'All') {
-    tmUrl += `&city=${encodeURIComponent(city)}`;
-  }
+  const maxPages = 5;
+  let allEvents = [];
+  let currentPage = page;
 
   try {
-    const response = await fetch(tmUrl);
-    if (!response.ok) {
-      return new Response('Failed to fetch from Ticketmaster', { status: 500 });
-    }
-    const data = await response.json();
+    while (currentPage < maxPages) {
+      const apiUrl = new URL('https://app.ticketmaster.com/discovery/v2/events.json');
+      apiUrl.searchParams.append('apikey', API_KEY);
+      apiUrl.searchParams.append('countryCode', 'GB');
+      if (city) apiUrl.searchParams.append('city', city);
+      apiUrl.searchParams.append('size', size);
+      apiUrl.searchParams.append('page', currentPage);
+      apiUrl.searchParams.append('sort', 'date,asc');
 
-    // Возвращаем только массив событий (или пустой массив)
-    return new Response(JSON.stringify({
-      events: data._embedded?.events || []
-    }), {
-      headers: {
-        'Content-Type': 'application/json'
+      const response = await fetch(apiUrl.toString());
+      if (!response.ok) {
+        const error = await response.json();
+        return new Response(JSON.stringify({ error }), { status: 500 });
       }
+
+      const data = await response.json();
+      if (data._embedded && data._embedded.events) {
+        allEvents = allEvents.concat(data._embedded.events);
+      }
+
+      if (!data.page || data.page.number === data.page.totalPages - 1) {
+        break;
+      }
+
+      currentPage++;
+    }
+
+    // Уникальные события (без дубликатов)
+    const seen = new Set();
+    const uniqueEvents = [];
+    for (const ev of allEvents) {
+      if (!seen.has(ev.id)) {
+        uniqueEvents.push(ev);
+        seen.add(ev.id);
+      }
+    }
+
+    return new Response(JSON.stringify({ events: uniqueEvents.slice(0, size) }), {
+      headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    return new Response('Internal Server Error', { status: 500 });
+    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
 }

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from './Header';
 
 export default function EventsList() {
-  // Состояния фильтров
+  // Фильтры и состояния
   const [city, setCity] = useState('All');
   const [freeFilter, setFreeFilter] = useState('All Events');
   const [genreFilter, setGenreFilter] = useState('All');
@@ -29,8 +29,8 @@ export default function EventsList() {
 
       setLoading(true);
 
-let url = `/api/events?page=${page}&size=${PAGE_SIZE}`;
-if (city !== 'All') url += `&city=${encodeURIComponent(city)}`;
+      let url = `/api/events?page=${page}&size=${PAGE_SIZE}`;
+      if (city !== 'All') url += `&city=${encodeURIComponent(city)}`;
 
       try {
         const res = await fetch(url);
@@ -83,7 +83,10 @@ if (city !== 'All') url += `&city=${encodeURIComponent(city)}`;
         )}
 
         {events.map(event => (
-          <li key={event.id} className="bg-purple-800 rounded p-4 flex gap-4 shadow hover:shadow-lg transition-shadow duration-300">
+          <li
+            key={event.id}
+            className="bg-purple-800 rounded p-4 flex gap-4 shadow hover:shadow-lg transition-shadow duration-300"
+          >
             {event.images?.[0]?.url && (
               <img
                 src={event.images[0].url}
