@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from './Header';
 
 export default function EventsList() {
-  // Фильтры и состояния
+  // Состояния фильтров
   const [city, setCity] = useState('All');
   const [freeFilter, setFreeFilter] = useState('All Events');
   const [genreFilter, setGenreFilter] = useState('All');
@@ -15,21 +15,21 @@ export default function EventsList() {
 
   const PAGE_SIZE = 8;
 
-  // Сброс данных при смене фильтров или города
+  // Сброс при смене фильтров
   useEffect(() => {
     setEvents([]);
     setPage(0);
     setHasMore(true);
   }, [city, freeFilter, genreFilter, ageFilter]);
 
-  // Загрузка событий с сервера
+  // Загрузка событий
   useEffect(() => {
     async function fetchEvents() {
       if (!hasMore && page !== 0) return;
 
       setLoading(true);
-      let url = `http://localhost:3000/events?page=${page}&size=${PAGE_SIZE}`;
 
+      let url = `/api/events?page=${page}&size=${PAGE_SIZE}`;
       if (city !== 'All') url += `&city=${encodeURIComponent(city)}`;
 
       try {
