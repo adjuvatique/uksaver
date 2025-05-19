@@ -20,9 +20,7 @@ export default function Header({ city, setCity, freeFilter, setFreeFilter, genre
           onChange={e => setCity(e.target.value)}
         >
           {CITIES.map(c => (
-            <option key={c} value={c}>
-              {c}
-            </option>
+            <option key={c} value={c}>{c}</option>
           ))}
         </select>
 
@@ -32,9 +30,7 @@ export default function Header({ city, setCity, freeFilter, setFreeFilter, genre
           onChange={e => setFreeFilter(e.target.value)}
         >
           {FREE_FILTERS.map(f => (
-            <option key={f} value={f}>
-              {f}
-            </option>
+            <option key={f} value={f}>{f}</option>
           ))}
         </select>
 
@@ -44,9 +40,7 @@ export default function Header({ city, setCity, freeFilter, setFreeFilter, genre
           onChange={e => setGenreFilter(e.target.value)}
         >
           {GENRES.map(g => (
-            <option key={g} value={g}>
-              {g}
-            </option>
+            <option key={g} value={g}>{g}</option>
           ))}
         </select>
 
@@ -56,9 +50,7 @@ export default function Header({ city, setCity, freeFilter, setFreeFilter, genre
           onChange={e => setAgeFilter(e.target.value)}
         >
           {AGES.map(a => (
-            <option key={a} value={a}>
-              {a}
-            </option>
+            <option key={a} value={a}>{a}</option>
           ))}
         </select>
       </div>
