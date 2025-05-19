@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import Header from './Header';
 
 export default function EventsList() {
-  // Фильтры и состояния
   const [city, setCity] = useState('All');
   const [freeFilter, setFreeFilter] = useState('All Events');
   const [genreFilter, setGenreFilter] = useState('All');
@@ -15,14 +14,12 @@ export default function EventsList() {
 
   const PAGE_SIZE = 8;
 
-  // Сброс при смене фильтров
   useEffect(() => {
     setEvents([]);
     setPage(0);
     setHasMore(true);
   }, [city, freeFilter, genreFilter, ageFilter]);
 
-  // Загрузка событий
   useEffect(() => {
     async function fetchEvents() {
       if (!hasMore && page !== 0) return;
@@ -37,7 +34,11 @@ export default function EventsList() {
         if (!res.ok) throw new Error('Failed to fetch events');
         const data = await res.json();
 
-        let filtered = data.events || [];
+        console.log('Fetched data:', data);
+
+        let filtered = data._embedded?.events || [];
+
+        console.log('Events count:', filtered.length);
 
         if (freeFilter === 'Free Only') {
           filtered = filtered.filter(e => e.priceRanges?.some(p => p.min === 0));
@@ -83,10 +84,7 @@ export default function EventsList() {
         )}
 
         {events.map(event => (
-          <li
-            key={event.id}
-            className="bg-purple-800 rounded p-4 flex gap-4 shadow hover:shadow-lg transition-shadow duration-300"
-          >
+          <li key={event.id} className="bg-purple-800 rounded p-4 flex gap-4 shadow hover:shadow-lg transition-shadow duration-300">
             {event.images?.[0]?.url && (
               <img
                 src={event.images[0].url}
