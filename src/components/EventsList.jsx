@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import Header from './Header';
 
 export default function EventsList() {
-  // Фильтры и состояния
   const [city, setCity] = useState('All');
   const [freeFilter, setFreeFilter] = useState('All Events');
   const [genreFilter, setGenreFilter] = useState('All');
@@ -15,7 +14,6 @@ export default function EventsList() {
 
   const PAGE_SIZE = 8;
 
-  // Сброс списка и пагинации при смене фильтров
   useEffect(() => {
     setEvents([]);
     setPage(0);
@@ -27,53 +25,46 @@ export default function EventsList() {
       if (!hasMore && page !== 0) return;
 
       setLoading(true);
-      let url = `/api/events?page=${page}&size=${PAGE_SIZE}`;
-      if (city !== 'All') url += `&city=${encodeURIComponent(city)}`;
+      const url = `/api/events?page=${page}&size=${PAGE_SIZE}`;
 
       try {
         const res = await fetch(url);
         if (!res.ok) throw new Error('Failed to fetch events');
         const data = await res.json();
 
-        let filtered = data.events || [];
+        let filtered = data.events;
 
-        // Логи для отладки
-        console.log(`Events received: ${filtered.length}`);
-
-        // Фильтр по бесплатным/платным
-        if (freeFilter === 'Free Only') {
-          filtered = filtered.filter(
-            e => e.priceRanges && e.priceRanges.some(p => p.min === 0)
-          );
-          console.log(`After free filter: ${filtered.length}`);
-        } else if (freeFilter === 'Paid Only') {
-          filtered = filtered.filter(
-            e => !e.priceRanges || !e.priceRanges.some(p => p.min === 0)
-          );
-          console.log(`After paid filter: ${filtered.length}`);
+        // Фильтрация по городу (сравниваем с городом из данных события)
+        if (city !== 'All') {
+          filtered = filtered.filter(event => {
+            const eventCity = event._embedded?.venues?.[0]?.city?.name || '';
+            return eventCity.toLowerCase() === city.toLowerCase();
+          });
         }
 
-        // Фильтр по жанру (с приведением к нижнему регистру)
+        // Фильтрация по бесплатным/платным
+        if (freeFilter === 'Free Only') {
+          filtered = filtered.filter(e => e.priceRanges?.some(p => p.min === 0));
+        } else if (freeFilter === 'Paid Only') {
+          filtered = filtered.filter(e => !e.priceRanges?.some(p => p.min === 0));
+        }
+
+        // Фильтрация по жанру
         if (genreFilter !== 'All') {
           filtered = filtered.filter(e =>
-            e.classifications?.some(
-              c =>
-                c.segment?.name?.toLowerCase() === genreFilter.toLowerCase()
-            )
+            e.classifications?.some(c => c.segment?.name?.toLowerCase() === genreFilter.toLowerCase())
           );
-          console.log(`After genre filter: ${filtered.length}`);
         }
 
-        // Фильтр по возрасту
+        // Фильтрация по возрасту
         if (ageFilter === '18+') {
           filtered = filtered.filter(e => e.ageRestrictions?.legalAgeEnforced);
-          console.log(`After age filter: ${filtered.length}`);
         }
 
         setEvents(prev => (page === 0 ? filtered : [...prev, ...filtered]));
         setHasMore(filtered.length === PAGE_SIZE);
-      } catch (err) {
-        console.error('Error fetching events:', err);
+      } catch (error) {
+        console.error(error);
         setHasMore(false);
       } finally {
         setLoading(false);
@@ -86,14 +77,10 @@ export default function EventsList() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-700 to-purple-500 p-8 text-white">
       <Header
-        city={city}
-        setCity={setCity}
-        freeFilter={freeFilter}
-        setFreeFilter={setFreeFilter}
-        genreFilter={genreFilter}
-        setGenreFilter={setGenreFilter}
-        ageFilter={ageFilter}
-        setAgeFilter={setAgeFilter}
+        city={city} setCity={setCity}
+        freeFilter={freeFilter} setFreeFilter={setFreeFilter}
+        genreFilter={genreFilter} setGenreFilter={setGenreFilter}
+        ageFilter={ageFilter} setAgeFilter={setAgeFilter}
       />
 
       <ul className="space-y-4 max-w-4xl mx-auto">
@@ -102,10 +89,7 @@ export default function EventsList() {
         )}
 
         {events.map(event => (
-          <li
-            key={event.id}
-            className="bg-purple-800 rounded p-4 flex gap-4 shadow hover:shadow-lg transition-shadow duration-300"
-          >
+          <li key={event.id} className="bg-purple-800 rounded p-4 flex gap-4 shadow hover:shadow-lg transition-shadow duration-300">
             {event.images?.[0]?.url && (
               <img
                 src={event.images[0].url}
@@ -117,21 +101,11 @@ export default function EventsList() {
             <div className="flex-1">
               <h3 className="font-bold text-lg">{event.name}</h3>
               <p className="text-sm">
-                {event.dates?.start?.localDate} at{' '}
-                {event.dates?.start?.localTime} |{' '}
-                {event._embedded?.venues?.[0]?.name || 'Unknown venue'}
+                {event.dates?.start?.localDate} at {event.dates?.start?.localTime} | {event._embedded?.venues?.[0]?.name || 'Unknown venue'}
               </p>
               <p className="mt-2 text-xs text-gray-300">
-                Genre: {event.classifications?.[0]?.segment?.name || 'N/A'} | Age:{' '}
-                {event.ageRestrictions?.legalAgeEnforced ? '18+' : 'All ages'} | Status:{' '}
-                {event.dates?.status?.code || 'unknown'} |{' '}
-                <span
-                  className={
-                    event.priceRanges?.some(p => p.min === 0)
-                      ? 'font-semibold'
-                      : ''
-                  }
-                >
+                Genre: {event.classifications?.[0]?.segment?.name || 'N/A'} | Age: {event.ageRestrictions?.legalAgeEnforced ? '18+' : 'All ages'} | Status: {event.dates?.status?.code || 'unknown'} |{' '}
+                <span className={event.priceRanges?.some(p => p.min === 0) ? 'font-semibold' : ''}>
                   {event.priceRanges?.some(p => p.min === 0) ? 'Free' : 'Paid'}
                 </span>
               </p>
@@ -148,7 +122,9 @@ export default function EventsList() {
         ))}
       </ul>
 
-      {loading && <p className="text-center mt-4">Loading...</p>}
+      {loading && (
+        <p className="text-center mt-4">Loading...</p>
+      )}
 
       {hasMore && !loading && (
         <div className="text-center mt-6">
