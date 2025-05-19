@@ -8,22 +8,18 @@ export async function GET(request) {
   const size = url.searchParams.get('size') || 8;
   const city = url.searchParams.get('city') || '';
 
-  // Базовый URL с фильтром по стране GB
-  let apiUrl = `https://app.ticketmaster.com/discovery/v2/events.json?apikey=${API_KEY}&countryCode=GB&page=${page}&size=${size}`;
+  let apiUrl = `https://app.ticketmaster.com/discovery/v2/events.json?apikey=${API_KEY}&page=${page}&size=${size}&countryCode=GB`;
 
-  // Добавляем город, если он выбран и не "All"
   if (city && city !== 'All') {
     apiUrl += `&city=${encodeURIComponent(city)}`;
   }
 
+  console.log('Fetching Ticketmaster:', apiUrl); // Лог для отладки
+
   try {
-    const res = await fetch(apiUrl, {
-      headers: {
-        'Cache-Control': 'no-cache', // Отключаем кеширование ответа
-      },
-    });
+    const res = await fetch(apiUrl);
     if (!res.ok) {
-      return new Response(`Failed to fetch from Ticketmaster: ${res.status}`, { status: res.status });
+      return new Response('Failed to fetch from Ticketmaster', { status: res.status });
     }
     const data = await res.json();
 
@@ -31,10 +27,11 @@ export async function GET(request) {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'no-store', // Отключаем кеширование
-      },
+        'Cache-Control': 'no-store'  // Отключаем кеширование для свежих данных
+      }
     });
   } catch (err) {
+    console.error('API fetch error:', err);
     return new Response('Internal Server Error', { status: 500 });
   }
 }

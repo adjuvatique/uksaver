@@ -14,7 +14,7 @@ export default function EventsList() {
 
   const PAGE_SIZE = 8;
 
-  // При изменении фильтров сбрасываем события и пагинацию
+  // Сброс при смене фильтров
   useEffect(() => {
     setEvents([]);
     setPage(0);
@@ -31,13 +31,21 @@ export default function EventsList() {
       if (city !== 'All') url += `&city=${encodeURIComponent(city)}`;
 
       try {
-        const res = await fetch(url, { cache: 'no-store' });
+        const res = await fetch(url);
         if (!res.ok) throw new Error('Failed to fetch events');
         const data = await res.json();
 
+        // Берём события из ответа
         let filtered = data._embedded?.events || [];
 
-        // Фильтрация по бесплатным / платным
+        // КЛИЕНТСКАЯ ФИЛЬТРАЦИЯ по городу (строгое сравнение)
+        if (city !== 'All') {
+          filtered = filtered.filter(event =>
+            event._embedded?.venues?.[0]?.city?.name?.toLowerCase() === city.toLowerCase()
+          );
+        }
+
+        // Фильтрация по бесплатным/платным
         if (freeFilter === 'Free Only') {
           filtered = filtered.filter(e => e.priceRanges?.some(p => p.min === 0));
         } else if (freeFilter === 'Paid Only') {
