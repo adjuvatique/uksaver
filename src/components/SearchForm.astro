@@ -1,21 +1,24 @@
 ---
-let searchQuery = "";
-let results = [];
-
-const handleSubmit = async (e) => {
+// Если используешь state и обработчики, можно здесь описать логику или передавать пропсы
+let searchQuery = '';
+const handleSubmit = (e) => {
   e.preventDefault();
-  if (!searchQuery) return;
-  results = ["Скидка на молоко", "Скидка на хлеб", "Скидка на бананы"];
+  // Тут можно добавить логику поиска
+  alert(`Поиск по: ${searchQuery}`);
 };
 ---
 
-<form on:submit={handleSubmit} class="flex gap-2">
-  <input type="text" bind:value={searchQuery} placeholder="Введите продукт" class="border p-2 rounded" />
-  <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Найти</button>
+<form onSubmit={handleSubmit} class="flex gap-2 max-w-md mx-auto">
+  <input
+    type="text"
+    bind:value={searchQuery}
+    placeholder="Введите продукт"
+    class="flex-grow p-3 rounded border border-purple-600 bg-purple-900 text-white placeholder-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+  />
+  <button
+    type="submit"
+    class="px-4 py-3 bg-pink-600 hover:bg-pink-700 rounded text-white font-semibold transition"
+  >
+    Найти
+  </button>
 </form>
-
-{results.length > 0 && (
-  <ul class="mt-4">
-    {results.map((item) => <li>{item}</li>)}
-  </ul>
-)}
