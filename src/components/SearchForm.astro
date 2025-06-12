@@ -1,0 +1,21 @@
+---
+let searchQuery = "";
+let results = [];
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!searchQuery) return;
+  results = ["Скидка на молоко", "Скидка на хлеб", "Скидка на бананы"];
+};
+---
+
+<form on:submit={handleSubmit} class="flex gap-2">
+  <input type="text" bind:value={searchQuery} placeholder="Введите продукт" class="border p-2 rounded" />
+  <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Найти</button>
+</form>
+
+{results.length > 0 && (
+  <ul class="mt-4">
+    {results.map((item) => <li>{item}</li>)}
+  </ul>
+)}
