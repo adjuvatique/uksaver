@@ -32,27 +32,20 @@ export default function Header({
     <header className="flex flex-col items-center gap-4 mb-8">
       <div className="flex items-center gap-3 mb-2">
         <img src="/logo.svg" alt="UKSaver logo" className="w-10 h-10" />
-        <h1
-          className={`text-2xl font-bold select-none ${
-            theme === 'dark' ? 'text-white' : 'text-gray-900'
-          }`}
-        >
-          UKSaver — Events Finder
-        </h1>
-
+        <h1 className="text-white text-2xl font-bold select-none">UKSaver — Events Finder</h1>
         <button
           onClick={toggleTheme}
-          className="ml-4 px-3 py-1 rounded border border-gray-300 hover:bg-gray-300 hover:text-gray-800 transition"
+          className="ml-4 px-3 py-1 rounded bg-gray-600 text-white hover:bg-gray-700 transition"
           aria-label="Toggle theme"
-          title="Toggle light/dark theme"
+          title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
         >
-          {theme === 'dark' ? '🌞 Light' : '🌙 Dark'}
+          {theme === 'dark' ? '🌞' : '🌙'}
         </button>
       </div>
 
       <div className="flex flex-wrap justify-center gap-4">
         <select
-          className="bg-purple-700 text-white rounded px-4 py-2 min-w-[140px] transition duration-300 ease-in-out hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-pink-500"
+          className="bg-purple-700 text-white rounded px-4 py-2 min-w-[140px]"
           value={city}
           onChange={e => setCity(e.target.value)}
         >
@@ -64,7 +57,7 @@ export default function Header({
         </select>
 
         <select
-          className="bg-purple-700 text-white rounded px-4 py-2 min-w-[140px] transition duration-300 ease-in-out hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-pink-500"
+          className="bg-purple-700 text-white rounded px-4 py-2 min-w-[140px]"
           value={freeFilter}
           onChange={e => setFreeFilter(e.target.value)}
         >
@@ -76,7 +69,7 @@ export default function Header({
         </select>
 
         <select
-          className="bg-purple-700 text-white rounded px-4 py-2 min-w-[140px] transition duration-300 ease-in-out hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-pink-500"
+          className="bg-purple-700 text-white rounded px-4 py-2 min-w-[140px]"
           value={genreFilter}
           onChange={e => setGenreFilter(e.target.value)}
         >
@@ -88,7 +81,7 @@ export default function Header({
         </select>
 
         <select
-          className="bg-purple-700 text-white rounded px-4 py-2 min-w-[140px] transition duration-300 ease-in-out hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-pink-500"
+          className="bg-purple-700 text-white rounded px-4 py-2 min-w-[140px]"
           value={ageFilter}
           onChange={e => setAgeFilter(e.target.value)}
         >
@@ -107,7 +100,7 @@ export default function Header({
           setGenreFilter('All');
           setAgeFilter('All ages');
         }}
-        className="mt-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded shadow transition transform hover:scale-105 active:scale-95"
+        className="mt-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded shadow"
       >
         Reset Filters
       </button>

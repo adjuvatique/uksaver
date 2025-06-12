@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Header from './Header';
+import SearchForm from './SearchForm';
 
 export default function EventsList() {
   const [city, setCity] = useState('All');
@@ -17,7 +18,6 @@ export default function EventsList() {
   const PAGE_SIZE = 8;
 
   useEffect(() => {
-    // При изменении фильтров и поиска сбрасываем события и пагинацию
     setEvents([]);
     setPage(0);
     setHasMore(true);
@@ -48,7 +48,6 @@ export default function EventsList() {
 
         let filtered = data.events;
 
-        // Локальная фильтрация по free/paid, т.к. API не фильтрует по этому
         if (freeFilter === 'Free Only') {
           filtered = filtered.filter(e => e.priceRanges?.some(p => p.min === 0));
         } else if (freeFilter === 'Paid Only') {
@@ -68,7 +67,6 @@ export default function EventsList() {
     fetchEvents();
   }, [city, freeFilter, genreFilter, ageFilter, searchQuery, page]);
 
-  // Тогглер темы и добавление класса body
   useEffect(() => {
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
@@ -79,6 +77,10 @@ export default function EventsList() {
 
   function toggleTheme() {
     setTheme(t => (t === 'dark' ? 'light' : 'dark'));
+  }
+
+  function handleSearchSubmit(query) {
+    setSearchQuery(query);
   }
 
   return (
@@ -93,13 +95,7 @@ export default function EventsList() {
       />
 
       <div className="max-w-4xl mx-auto mb-4">
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={e => setSearchQuery(e.target.value)}
-          placeholder="Search events by keyword..."
-          className="w-full p-2 rounded bg-purple-800 text-white border border-purple-600 focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
-        />
+        <SearchForm onSearch={handleSearchSubmit} />
       </div>
 
       <p className="max-w-4xl mx-auto text-center mb-4 text-purple-200 dark:text-gray-400">

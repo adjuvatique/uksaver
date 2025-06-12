@@ -19,7 +19,6 @@ export async function GET(request) {
 
   try {
     const res = await fetch(`https://app.ticketmaster.com/discovery/v2/events.json${query}`);
-    console.log(`Request URL: https://app.ticketmaster.com/discovery/v2/events.json${query}`);
     if (!res.ok) {
       return new Response('Failed to fetch from Ticketmaster', { status: res.status });
     }
@@ -27,7 +26,7 @@ export async function GET(request) {
     const data = await res.json();
     let events = data._embedded?.events || [];
 
-    // Фильтрация по городу
+    // Фильтрация по городу (локальная)
     if (city && city !== 'All') {
       events = events.filter(event => {
         const eventCity = event._embedded?.venues?.[0]?.city?.name || '';
@@ -35,7 +34,7 @@ export async function GET(request) {
       });
     }
 
-    // Фильтрация по жанру
+    // Фильтрация по жанру (локальная)
     if (genre && genre !== 'All') {
       events = events.filter(event => {
         const segment = event.classifications?.[0]?.segment?.name || '';
