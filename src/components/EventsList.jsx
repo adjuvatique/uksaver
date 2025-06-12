@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import Header from './Header';
 
+function isFreeEvent(event) {
+  if (!event.priceRanges) return true;
+  return event.priceRanges.some(p => p.min === 0);
+}
+
 export default function EventsList() {
   const [city, setCity] = useState('All');
   const [freeFilter, setFreeFilter] = useState('All Events');
@@ -25,36 +30,28 @@ export default function EventsList() {
       if (!hasMore && page !== 0) return;
 
       setLoading(true);
-      const url = `/api/events?page=${page}&size=${PAGE_SIZE}&city=${city}&genre=${genreFilter}&age=${ageFilter}`;
+
+      const params = new URLSearchParams({
+        page,
+        size: PAGE_SIZE,
+      });
+
+      if (city !== 'All') params.append('city', city);
+      if (genreFilter !== 'All') params.append('genre', genreFilter);
+      if (ageFilter !== 'All ages') params.append('age', ageFilter);
 
       try {
-        const res = await fetch(url);
+        const res = await fetch(`/api/events?${params.toString()}`);
         if (!res.ok) throw new Error('Failed to fetch events');
         const data = await res.json();
 
         let filtered = data.events;
 
-        if (city !== 'All') {
-          filtered = filtered.filter(event => {
-            const eventCity = event._embedded?.venues?.[0]?.city?.name || '';
-            return eventCity.toLowerCase() === city.toLowerCase();
-          });
-        }
-
+        // Применяем фильтр бесплатных/платных уже после API (если API не фильтрует)
         if (freeFilter === 'Free Only') {
-          filtered = filtered.filter(e => e.priceRanges?.some(p => p.min === 0));
+          filtered = filtered.filter(isFreeEvent);
         } else if (freeFilter === 'Paid Only') {
-          filtered = filtered.filter(e => !e.priceRanges?.some(p => p.min === 0));
-        }
-
-        if (genreFilter !== 'All') {
-          filtered = filtered.filter(e =>
-            e.classifications?.some(c => c.segment?.name?.toLowerCase() === genreFilter.toLowerCase())
-          );
-        }
-
-        if (ageFilter === '18+') {
-          filtered = filtered.filter(e => e.ageRestrictions?.legalAgeEnforced);
+          filtered = filtered.filter(e => !isFreeEvent(e));
         }
 
         setEvents(prev => (page === 0 ? filtered : [...prev, ...filtered]));
@@ -68,7 +65,7 @@ export default function EventsList() {
     }
 
     fetchEvents();
-  }, [city, freeFilter, genreFilter, ageFilter, page]);
+  }, [city, freeFilter, genreFilter, ageFilter, page, hasMore]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-700 to-purple-500 p-8 text-white">
@@ -79,11 +76,7 @@ export default function EventsList() {
         ageFilter={ageFilter} setAgeFilter={setAgeFilter}
       />
 
-      <p className="text-center text-purple-200 text-sm mt-2">
-        Showing {events.length} event{events.length !== 1 ? 's' : ''} {city !== 'All' ? `in ${city}` : ''}
-      </p>
-
-      <ul className="space-y-4 max-w-4xl mx-auto mt-4">
+      <ul className="space-y-4 max-w-4xl mx-auto">
         {events.length === 0 && !loading && (
           <p className="text-center">No events found.</p>
         )}
@@ -105,8 +98,8 @@ export default function EventsList() {
               </p>
               <p className="mt-2 text-xs text-gray-300">
                 Genre: {event.classifications?.[0]?.segment?.name || 'N/A'} | Age: {event.ageRestrictions?.legalAgeEnforced ? '18+' : 'All ages'} | Status: {event.dates?.status?.code || 'unknown'} |{' '}
-                <span className={event.priceRanges?.some(p => p.min === 0) ? 'font-semibold' : ''}>
-                  {event.priceRanges?.some(p => p.min === 0) ? 'Free' : 'Paid'}
+                <span className={isFreeEvent(event) ? 'font-semibold' : ''}>
+                  {isFreeEvent(event) ? 'Free' : 'Paid'}
                 </span>
               </p>
               <a
