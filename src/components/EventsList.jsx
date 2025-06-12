@@ -2,20 +2,18 @@ import React, { useState, useEffect } from 'react';
 import Header from './Header';
 
 export default function EventsList() {
-  const [searchQuery, setSearchQuery] = useState('');
   const [city, setCity] = useState('All');
   const [freeFilter, setFreeFilter] = useState('All Events');
   const [genreFilter, setGenreFilter] = useState('All');
   const [ageFilter, setAgeFilter] = useState('All ages');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const [events, setEvents] = useState([]);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
-
   const PAGE_SIZE = 8;
 
-  // Сбрасываем страницу и события при смене фильтров или поискового запроса
   useEffect(() => {
     setEvents([]);
     setPage(0);
@@ -28,23 +26,26 @@ export default function EventsList() {
 
       setLoading(true);
 
-      // Формируем параметры запроса
-      const params = new URLSearchParams();
-      params.append('page', page);
-      params.append('size', PAGE_SIZE);
-      if (city && city !== 'All') params.append('city', city);
-      if (genreFilter && genreFilter !== 'All') params.append('genre', genreFilter);
-      if (ageFilter) params.append('age', ageFilter);
-      if (searchQuery) params.append('keyword', searchQuery); // предполагаем, что backend поддерживает фильтр по ключевому слову
+      const params = new URLSearchParams({
+        page,
+        size: PAGE_SIZE,
+      });
+
+      if (city !== 'All') params.append('city', city);
+      if (genreFilter !== 'All') params.append('genre', genreFilter);
+      if (ageFilter !== 'All ages') params.append('age', ageFilter);
+      if (searchQuery.trim() !== '') params.append('keyword', searchQuery.trim());
+
+      const url = `/api/events?${params.toString()}`;
 
       try {
-        const res = await fetch(`/api/events?${params.toString()}`);
+        const res = await fetch(url);
         if (!res.ok) throw new Error('Failed to fetch events');
         const data = await res.json();
 
         let filtered = data.events;
 
-        // Фильтрация по бесплатным/платным
+        // Фильтрация по бесплатным/платным, т.к. API не фильтрует по free/paid
         if (freeFilter === 'Free Only') {
           filtered = filtered.filter(e => e.priceRanges?.some(p => p.min === 0));
         } else if (freeFilter === 'Paid Only') {
@@ -73,16 +74,20 @@ export default function EventsList() {
         ageFilter={ageFilter} setAgeFilter={setAgeFilter}
       />
 
-      {/* Поисковая строка */}
-      <div className="max-w-4xl mx-auto mb-6">
+      <div className="max-w-4xl mx-auto mb-4">
         <input
           type="text"
-          placeholder="Введите продукт"
-          className="w-full p-2 rounded text-black"
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={e => setSearchQuery(e.target.value)}
+          placeholder="Search events by keyword..."
+          className="w-full p-2 rounded bg-purple-800 text-white border border-purple-600 focus:outline-none focus:ring-2 focus:ring-pink-500"
         />
       </div>
+
+      {/* Счетчик найденных событий */}
+      <p className="max-w-4xl mx-auto text-center mb-4 text-purple-200">
+        Showing {events.length} {events.length === 1 ? 'event' : 'events'}
+      </p>
 
       <ul className="space-y-4 max-w-4xl mx-auto">
         {events.length === 0 && !loading && (
