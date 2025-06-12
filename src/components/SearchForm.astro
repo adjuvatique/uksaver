@@ -1,24 +1,29 @@
----
-// Если используешь state и обработчики, можно здесь описать логику или передавать пропсы
-let searchQuery = '';
-const handleSubmit = (e) => {
-  e.preventDefault();
-  // Тут можно добавить логику поиска
-  alert(`Поиск по: ${searchQuery}`);
-};
----
+import React, { useState } from 'react';
 
-<form onSubmit={handleSubmit} class="flex gap-2 max-w-md mx-auto">
-  <input
-    type="text"
-    bind:value={searchQuery}
-    placeholder="Введите продукт"
-    class="flex-grow p-3 rounded border border-purple-600 bg-purple-900 text-white placeholder-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
-  />
-  <button
-    type="submit"
-    class="px-4 py-3 bg-pink-600 hover:bg-pink-700 rounded text-white font-semibold transition"
-  >
-    Найти
-  </button>
-</form>
+export default function SearchForm({ onSearch }) {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    onSearch(searchQuery.trim());
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="flex gap-2 max-w-md mx-auto">
+      <input
+        type="text"
+        value={searchQuery}
+        onChange={e => setSearchQuery(e.target.value)}
+        placeholder="Введите продукт"
+        className="flex-grow p-3 rounded border border-purple-600 bg-purple-900 text-white placeholder-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+      />
+      <button
+        type="submit"
+        className="px-4 py-3 bg-pink-600 hover:bg-pink-700 rounded text-white font-semibold transition"
+      >
+        Найти
+      </button>
+    </form>
+  );
+}

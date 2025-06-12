@@ -1,134 +1,55 @@
 import React, { useState, useEffect } from 'react';
-import Header from './Header';
-
-function isFreeEvent(event) {
-  if (!event.priceRanges) return true;
-  return event.priceRanges.some(p => p.min === 0);
-}
+import SearchForm from './SearchForm';
 
 export default function EventsList() {
-  const [city, setCity] = useState('All');
-  const [freeFilter, setFreeFilter] = useState('All Events');
-  const [genreFilter, setGenreFilter] = useState('All');
-  const [ageFilter, setAgeFilter] = useState('All ages');
-
   const [events, setEvents] = useState([]);
-  const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const PAGE_SIZE = 8;
-
-  useEffect(() => {
-    setEvents([]);
-    setPage(0);
-    setHasMore(true);
-  }, [city, freeFilter, genreFilter, ageFilter]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    async function fetchEvents() {
-      if (!hasMore && page !== 0) return;
-
-      setLoading(true);
-
-      const params = new URLSearchParams({
-        page,
-        size: PAGE_SIZE,
-      });
-
-      if (city !== 'All') params.append('city', city);
-      if (genreFilter !== 'All') params.append('genre', genreFilter);
-      if (ageFilter !== 'All ages') params.append('age', ageFilter);
-
-      try {
-        const res = await fetch(`/api/events?${params.toString()}`);
-        if (!res.ok) throw new Error('Failed to fetch events');
-        const data = await res.json();
-
-        let filtered = data.events;
-
-        // Применяем фильтр бесплатных/платных уже после API (если API не фильтрует)
-        if (freeFilter === 'Free Only') {
-          filtered = filtered.filter(isFreeEvent);
-        } else if (freeFilter === 'Paid Only') {
-          filtered = filtered.filter(e => !isFreeEvent(e));
-        }
-
-        setEvents(prev => (page === 0 ? filtered : [...prev, ...filtered]));
-        setHasMore(filtered.length === PAGE_SIZE);
-      } catch (error) {
-        console.error(error);
-        setHasMore(false);
-      } finally {
-        setLoading(false);
-      }
+    if (!searchTerm) {
+      setEvents([]);
+      return;
     }
 
+    const fetchEvents = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(`/api/events?search=${encodeURIComponent(searchTerm)}`);
+        if (!res.ok) throw new Error('Ошибка загрузки событий');
+        const data = await res.json();
+        setEvents(data.events || []);
+      } catch (err) {
+        setError(err.message);
+        setEvents([]);
+      }
+      setLoading(false);
+    };
+
     fetchEvents();
-  }, [city, freeFilter, genreFilter, ageFilter, page, hasMore]);
+  }, [searchTerm]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-700 to-purple-500 p-8 text-white">
-      <Header
-        city={city} setCity={setCity}
-        freeFilter={freeFilter} setFreeFilter={setFreeFilter}
-        genreFilter={genreFilter} setGenreFilter={setGenreFilter}
-        ageFilter={ageFilter} setAgeFilter={setAgeFilter}
-      />
+    <div>
+      <SearchForm onSearch={setSearchTerm} />
 
-      <ul className="space-y-4 max-w-4xl mx-auto">
-        {events.length === 0 && !loading && (
-          <p className="text-center">No events found.</p>
-        )}
+      {loading && <p className="text-center text-white mt-4">Загрузка...</p>}
+      {error && <p className="text-center text-red-500 mt-4">{error}</p>}
 
+      {!loading && events.length === 0 && searchTerm && (
+        <p className="text-center text-white mt-4">События не найдены</p>
+      )}
+
+      <ul className="mt-6 space-y-4 max-w-4xl mx-auto">
         {events.map(event => (
-          <li key={event.id} className="bg-purple-800 rounded p-4 flex gap-4 shadow hover:shadow-lg transition-shadow duration-300">
-            {event.images?.[0]?.url && (
-              <img
-                src={event.images[0].url}
-                alt={event.name}
-                className="w-24 h-24 object-cover rounded"
-                loading="lazy"
-              />
-            )}
-            <div className="flex-1">
-              <h3 className="font-bold text-lg">{event.name}</h3>
-              <p className="text-sm">
-                {event.dates?.start?.localDate} at {event.dates?.start?.localTime} | {event._embedded?.venues?.[0]?.name || 'Unknown venue'}
-              </p>
-              <p className="mt-2 text-xs text-gray-300">
-                Genre: {event.classifications?.[0]?.segment?.name || 'N/A'} | Age: {event.ageRestrictions?.legalAgeEnforced ? '18+' : 'All ages'} | Status: {event.dates?.status?.code || 'unknown'} |{' '}
-                <span className={isFreeEvent(event) ? 'font-semibold' : ''}>
-                  {isFreeEvent(event) ? 'Free' : 'Paid'}
-                </span>
-              </p>
-              <a
-                href={event.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block mt-3 px-4 py-1 text-sm rounded bg-pink-600 hover:bg-pink-700 transition-colors"
-              >
-                Buy Tickets
-              </a>
-            </div>
+          <li key={event.id} className="bg-purple-800 rounded p-4 shadow">
+            <h3 className="font-bold text-lg text-white">{event.name}</h3>
+            {/* Здесь можно расширить отображение */}
           </li>
         ))}
       </ul>
-
-      {loading && (
-        <p className="text-center mt-4">Loading...</p>
-      )}
-
-      {hasMore && !loading && (
-        <div className="text-center mt-6">
-          <button
-            onClick={() => setPage(p => p + 1)}
-            className="px-6 py-2 rounded bg-purple-600 hover:bg-purple-700 transition"
-          >
-            Load More
-          </button>
-        </div>
-      )}
     </div>
   );
 }
