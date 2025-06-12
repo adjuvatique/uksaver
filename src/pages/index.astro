@@ -1,16 +1,9 @@
 ---
 import EventsList from '../components/EventsList.jsx';
-import SearchForm from '../components/SearchForm.jsx';
 ---
 
-<html lang="en">
-  <body class="m-0 p-4 min-h-screen bg-gradient-to-br from-indigo-800 via-purple-800 to-pink-800 text-white">
-    <main class="max-w-2xl mx-auto py-10">
-      <h1 class="text-3xl font-bold mb-6">UKSaver: Поиск скидок</h1>
-      <SearchForm client:load />
-      <div class="mt-10">
-        <EventsList client:load />
-      </div>
-    </main>
+<html>
+  <body>
+    <EventsList client:load />
   </body>
 </html>
