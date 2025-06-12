@@ -85,7 +85,6 @@ export default function Header({
         </select>
       </div>
 
-      {/* Кнопка сброса фильтров */}
       <button
         onClick={() => {
           setCity('All');

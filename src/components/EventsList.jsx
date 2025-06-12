@@ -12,6 +12,7 @@ export default function EventsList() {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
+
   const PAGE_SIZE = 8;
 
   useEffect(() => {
@@ -45,7 +46,7 @@ export default function EventsList() {
 
         let filtered = data.events;
 
-        // Фильтрация по бесплатным/платным, т.к. API не фильтрует по free/paid
+        // Фильтрация по бесплатным/платным — API не фильтрует, делаем сами
         if (freeFilter === 'Free Only') {
           filtered = filtered.filter(e => e.priceRanges?.some(p => p.min === 0));
         } else if (freeFilter === 'Paid Only') {

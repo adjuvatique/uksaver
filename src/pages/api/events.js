@@ -11,7 +11,6 @@ export async function GET(request) {
   const age = url.searchParams.get('age');
   const keyword = url.searchParams.get('keyword');
 
-  // Формируем базовый запрос к Ticketmaster без city и segmentName
   let query = `?apikey=${API_KEY}&page=${page}&size=${size}&countryCode=GB`;
 
   if (keyword && keyword.trim() !== '') {
@@ -27,7 +26,7 @@ export async function GET(request) {
     const data = await res.json();
     let events = data._embedded?.events || [];
 
-    // Локальная фильтрация по городу
+    // Фильтрация по городу
     if (city && city !== 'All') {
       events = events.filter(event => {
         const eventCity = event._embedded?.venues?.[0]?.city?.name || '';
@@ -35,7 +34,7 @@ export async function GET(request) {
       });
     }
 
-    // Локальная фильтрация по жанру (segment)
+    // Фильтрация по жанру
     if (genre && genre !== 'All') {
       events = events.filter(event => {
         const segment = event.classifications?.[0]?.segment?.name || '';
