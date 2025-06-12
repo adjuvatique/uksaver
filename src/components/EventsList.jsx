@@ -25,7 +25,7 @@ export default function EventsList() {
       if (!hasMore && page !== 0) return;
 
       setLoading(true);
-      const url = `/api/events?page=${page}&size=${PAGE_SIZE}`;
+      const url = `/api/events?page=${page}&size=${PAGE_SIZE}&city=${city}&genre=${genreFilter}&age=${ageFilter}`;
 
       try {
         const res = await fetch(url);

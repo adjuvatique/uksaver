@@ -84,6 +84,19 @@ export default function Header({
           ))}
         </select>
       </div>
+
+      {/* Кнопка сброса фильтров */}
+      <button
+        onClick={() => {
+          setCity('All');
+          setFreeFilter('All Events');
+          setGenreFilter('All');
+          setAgeFilter('All ages');
+        }}
+        className="mt-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded shadow"
+      >
+        Reset Filters
+      </button>
     </header>
   );
 }

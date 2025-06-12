@@ -6,27 +6,42 @@ export async function GET(request) {
   const url = new URL(request.url);
   const page = url.searchParams.get('page') || 0;
   const size = url.searchParams.get('size') || 8;
+  const city = url.searchParams.get('city');
+  const genre = url.searchParams.get('genre');
+  const age = url.searchParams.get('age');
 
-  // Запрос всех событий по Великобритании без фильтра по городу
-  const apiUrl = `https://app.ticketmaster.com/discovery/v2/events.json?apikey=${API_KEY}&page=${page}&size=${size}&countryCode=GB`;
+  let query = `?apikey=${API_KEY}&page=${page}&size=${size}&countryCode=GB`;
+
+  if (city && city !== 'All') {
+    query += `&city=${encodeURIComponent(city)}`;
+  }
+
+  if (genre && genre !== 'All') {
+    query += `&segmentName=${encodeURIComponent(genre)}`;
+  }
 
   try {
-    const res = await fetch(apiUrl);
+    const res = await fetch(`https://app.ticketmaster.com/discovery/v2/events.json${query}`);
     if (!res.ok) {
       return new Response('Failed to fetch from Ticketmaster', { status: res.status });
     }
-    const data = await res.json();
 
-    return new Response(
-      JSON.stringify({ events: data._embedded?.events || [] }),
-      {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-store'
-        },
-      }
-    );
+    const data = await res.json();
+    let events = data._embedded?.events || [];
+
+    if (age === '18+') {
+      events = events.filter(e => e.ageRestrictions?.legalAgeEnforced);
+    } else if (age === 'All ages') {
+      events = events.filter(e => !e.ageRestrictions?.legalAgeEnforced);
+    }
+
+    return new Response(JSON.stringify({ events }), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store',
+      },
+    });
   } catch (error) {
     return new Response('Internal Server Error', { status: 500 });
   }
