@@ -100,6 +100,12 @@ export default function EventsList({ initialCity = 'London' }) {
         <p className="text-center text-purple-300">No events found for selected filters.</p>
       )}
 
+      {!loading && events.length > 0 && (
+        <p className="text-center text-purple-200 text-sm mb-3">
+          Found {events.length} event{events.length !== 1 ? 's' : ''}
+        </p>
+      )}
+
       <ul className="divide-y divide-purple-700 rounded-lg overflow-hidden shadow-lg bg-purple-900">
         {events.map(event => {
           const imageUrl = event.images?.find(img => img.ratio === '16_9')?.url || '';
