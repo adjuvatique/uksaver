@@ -34,7 +34,6 @@ export default function EventsList() {
 
         let filtered = data.events;
 
-        // Фильтрация по городу (сравниваем с городом из данных события)
         if (city !== 'All') {
           filtered = filtered.filter(event => {
             const eventCity = event._embedded?.venues?.[0]?.city?.name || '';
@@ -42,21 +41,18 @@ export default function EventsList() {
           });
         }
 
-        // Фильтрация по бесплатным/платным
         if (freeFilter === 'Free Only') {
           filtered = filtered.filter(e => e.priceRanges?.some(p => p.min === 0));
         } else if (freeFilter === 'Paid Only') {
           filtered = filtered.filter(e => !e.priceRanges?.some(p => p.min === 0));
         }
 
-        // Фильтрация по жанру
         if (genreFilter !== 'All') {
           filtered = filtered.filter(e =>
             e.classifications?.some(c => c.segment?.name?.toLowerCase() === genreFilter.toLowerCase())
           );
         }
 
-        // Фильтрация по возрасту
         if (ageFilter === '18+') {
           filtered = filtered.filter(e => e.ageRestrictions?.legalAgeEnforced);
         }
@@ -83,7 +79,11 @@ export default function EventsList() {
         ageFilter={ageFilter} setAgeFilter={setAgeFilter}
       />
 
-      <ul className="space-y-4 max-w-4xl mx-auto">
+      <p className="text-center text-purple-200 text-sm mt-2">
+        Showing {events.length} event{events.length !== 1 ? 's' : ''} {city !== 'All' ? `in ${city}` : ''}
+      </p>
+
+      <ul className="space-y-4 max-w-4xl mx-auto mt-4">
         {events.length === 0 && !loading && (
           <p className="text-center">No events found.</p>
         )}
