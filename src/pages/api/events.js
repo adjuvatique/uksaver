@@ -11,14 +11,11 @@ export async function GET(request) {
   const age = url.searchParams.get('age');
   const keyword = url.searchParams.get('keyword');
 
+  // Формируем базовый запрос к Ticketmaster без city и segmentName
   let query = `?apikey=${API_KEY}&page=${page}&size=${size}&countryCode=GB`;
 
-  if (city && city !== 'All') {
-    query += `&city=${encodeURIComponent(city)}`;
-  }
-
-  if (genre && genre !== 'All') {
-    query += `&segmentName=${encodeURIComponent(genre)}`;
+  if (keyword && keyword.trim() !== '') {
+    query += `&keyword=${encodeURIComponent(keyword.trim())}`;
   }
 
   try {
@@ -30,17 +27,27 @@ export async function GET(request) {
     const data = await res.json();
     let events = data._embedded?.events || [];
 
+    // Локальная фильтрация по городу
+    if (city && city !== 'All') {
+      events = events.filter(event => {
+        const eventCity = event._embedded?.venues?.[0]?.city?.name || '';
+        return eventCity.toLowerCase() === city.toLowerCase();
+      });
+    }
+
+    // Локальная фильтрация по жанру (segment)
+    if (genre && genre !== 'All') {
+      events = events.filter(event => {
+        const segment = event.classifications?.[0]?.segment?.name || '';
+        return segment.toLowerCase() === genre.toLowerCase();
+      });
+    }
+
     // Фильтрация по возрасту
     if (age === '18+') {
       events = events.filter(e => e.ageRestrictions?.legalAgeEnforced);
     } else if (age === 'All ages') {
       events = events.filter(e => !e.ageRestrictions?.legalAgeEnforced);
-    }
-
-    // Фильтрация по ключевому слову (название)
-    if (keyword && keyword.trim() !== '') {
-      const keywordLower = keyword.toLowerCase();
-      events = events.filter(e => e.name.toLowerCase().includes(keywordLower));
     }
 
     return new Response(JSON.stringify({ events }), {
