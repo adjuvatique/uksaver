@@ -7,6 +7,7 @@ export default function EventsList() {
   const [genreFilter, setGenreFilter] = useState('All');
   const [ageFilter, setAgeFilter] = useState('All ages');
   const [searchQuery, setSearchQuery] = useState('');
+  const [theme, setTheme] = useState('dark');
 
   const [events, setEvents] = useState([]);
   const [page, setPage] = useState(0);
@@ -16,6 +17,7 @@ export default function EventsList() {
   const PAGE_SIZE = 8;
 
   useEffect(() => {
+    // При изменении фильтров и поиска сбрасываем события и пагинацию
     setEvents([]);
     setPage(0);
     setHasMore(true);
@@ -46,7 +48,7 @@ export default function EventsList() {
 
         let filtered = data.events;
 
-        // Фильтрация по бесплатным/платным — API не фильтрует, делаем сами
+        // Локальная фильтрация по free/paid, т.к. API не фильтрует по этому
         if (freeFilter === 'Free Only') {
           filtered = filtered.filter(e => e.priceRanges?.some(p => p.min === 0));
         } else if (freeFilter === 'Paid Only') {
@@ -66,13 +68,28 @@ export default function EventsList() {
     fetchEvents();
   }, [city, freeFilter, genreFilter, ageFilter, searchQuery, page]);
 
+  // Тогглер темы и добавление класса body
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
+
+  function toggleTheme() {
+    setTheme(t => (t === 'dark' ? 'light' : 'dark'));
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-700 to-purple-500 p-8 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-purple-700 to-purple-500 dark:from-gray-900 dark:to-gray-700 p-8 text-white dark:text-gray-200 transition-colors duration-500">
       <Header
         city={city} setCity={setCity}
         freeFilter={freeFilter} setFreeFilter={setFreeFilter}
         genreFilter={genreFilter} setGenreFilter={setGenreFilter}
         ageFilter={ageFilter} setAgeFilter={setAgeFilter}
+        theme={theme}
+        toggleTheme={toggleTheme}
       />
 
       <div className="max-w-4xl mx-auto mb-4">
@@ -81,22 +98,24 @@ export default function EventsList() {
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
           placeholder="Search events by keyword..."
-          className="w-full p-2 rounded bg-purple-800 text-white border border-purple-600 focus:outline-none focus:ring-2 focus:ring-pink-500"
+          className="w-full p-2 rounded bg-purple-800 text-white border border-purple-600 focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
         />
       </div>
 
-      {/* Счетчик найденных событий */}
-      <p className="max-w-4xl mx-auto text-center mb-4 text-purple-200">
+      <p className="max-w-4xl mx-auto text-center mb-4 text-purple-200 dark:text-gray-400">
         Showing {events.length} {events.length === 1 ? 'event' : 'events'}
       </p>
 
       <ul className="space-y-4 max-w-4xl mx-auto">
         {events.length === 0 && !loading && (
-          <p className="text-center">No events found.</p>
+          <p className="text-center text-purple-300 dark:text-gray-400">No events found.</p>
         )}
 
         {events.map(event => (
-          <li key={event.id} className="bg-purple-800 rounded p-4 flex gap-4 shadow hover:shadow-lg transition-shadow duration-300">
+          <li
+            key={event.id}
+            className="bg-purple-800 dark:bg-gray-800 rounded p-4 flex gap-4 shadow hover:shadow-lg transition-shadow duration-300"
+          >
             {event.images?.[0]?.url && (
               <img
                 src={event.images[0].url}
@@ -108,10 +127,13 @@ export default function EventsList() {
             <div className="flex-1">
               <h3 className="font-bold text-lg">{event.name}</h3>
               <p className="text-sm">
-                {event.dates?.start?.localDate} at {event.dates?.start?.localTime} | {event._embedded?.venues?.[0]?.name || 'Unknown venue'}
+                {event.dates?.start?.localDate} at {event.dates?.start?.localTime} |{' '}
+                {event._embedded?.venues?.[0]?.name || 'Unknown venue'}
               </p>
-              <p className="mt-2 text-xs text-gray-300">
-                Genre: {event.classifications?.[0]?.segment?.name || 'N/A'} | Age: {event.ageRestrictions?.legalAgeEnforced ? '18+' : 'All ages'} | Status: {event.dates?.status?.code || 'unknown'} |{' '}
+              <p className="mt-2 text-xs text-gray-300 dark:text-gray-400">
+                Genre: {event.classifications?.[0]?.segment?.name || 'N/A'} | Age:{' '}
+                {event.ageRestrictions?.legalAgeEnforced ? '18+' : 'All ages'} | Status:{' '}
+                {event.dates?.status?.code || 'unknown'} |{' '}
                 <span className={event.priceRanges?.some(p => p.min === 0) ? 'font-semibold' : ''}>
                   {event.priceRanges?.some(p => p.min === 0) ? 'Free' : 'Paid'}
                 </span>
@@ -130,7 +152,7 @@ export default function EventsList() {
       </ul>
 
       {loading && (
-        <p className="text-center mt-4">Loading...</p>
+        <p className="text-center mt-4 text-purple-300 dark:text-gray-400">Loading...</p>
       )}
 
       {hasMore && !loading && (
